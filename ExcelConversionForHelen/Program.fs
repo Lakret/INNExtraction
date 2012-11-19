@@ -2,6 +2,7 @@
 #r "stdole.dll"
 #r "Microsoft.Office.Interop.Word"
 #r "Microsoft.Office.Interop.Excel"
+#r "System.Windows.Forms"
 #endif
 
 open System
@@ -96,6 +97,22 @@ let res = extractAll (baseDir + @"\CSV")
 let resSet = set [ yield! res ]     
 File.WriteAllLines(baseDir + @"\fromExcel.txt", resSet.ToArray())
 
+//converting rtf to txt
+let rtfDir = baseDir + @"\.rtf"
+let txtDir = baseDir + @"\txt"
+Array.Parallel.iter
+    (fun file -> 
+        printfn "Processing %s" file
+        let rtfBox = new System.Windows.Forms.RichTextBox()
+        rtfBox.Rtf <- File.ReadAllText file
+        File.WriteAllText(txtDir + @"\" + Path.GetFileNameWithoutExtension file + ".txt", rtfBox.Text))
+    (Directory.GetFiles rtfDir)
+
+//9909335836
+//57791
+let res' = extractAll txtDir
+let resSet' = set [ yield! res' ]  
+File.AppendAllLines(baseDir + @"\fromExcel.txt", resSet.ToArray())
 
 //[<EntryPoint>]
 //let main argv = 
